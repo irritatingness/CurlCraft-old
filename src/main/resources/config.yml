@@ -1,0 +1,36 @@
+# Should logging be verbose?
+verboseLogging: true
+
+
+# Here you define your server's available REST endpoints
+# Each item under endpoints will be registered as a REST POST endpoint, and the actions item under each item is where you may define what actions to execute.
+# If the action defined in a list requires a target, the target must be specific in the body of your POST request, otherwise it will not execute.
+#
+# Available actions that do not require a user: electrocuteAll, fireworksAll, test1, test2, test3
+# Actions that require a user specified in the POST body: 
+#
+# Example endpoint
+# example:
+#   actions:
+#     - electrocuteAll
+#     - fireworksAll
+endpoints:
+  exampleOne:
+    actions:
+      - electrocuteAll
+      - fireworksAll
+  exampleTwo:
+    actions:
+      - fireworksAll
+  exampleThree:
+    actions:
+      - fireworksAll
+      - test1
+      - test2
+      - test3
+  exampleFour:
+    actions:
+      - test1
+      - test3
+  
+  
