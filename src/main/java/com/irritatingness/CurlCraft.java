@@ -70,25 +70,29 @@ public class CurlCraft extends JavaPlugin {
 							for (String action : actions) {
 								try {
 									
-									// Get the action method
-									Method m = plugin.getClass().getMethod(action);
+									// Get all methods and match on method name
+									// Arguably cleaner than catching the NoSuchMethodException and retrying for 0 args.
+									Method[] methods = plugin.getClass().getMethods();
 									
-									// TODO: The getParameterCount will never return > 0, because the getMethod doesn't include String.class....
-									// We need to be able to support methods that take args AND methods that do NOT take args to support optional targets.
-									
-									// If the method accepts a parameter, and we have a target, call method with target
-									if (m.getParameterCount() > 0) {
-										logger.info("Found a method with param count > 0: " + m.getName());
-										if (target != null) {
-											m.invoke(plugin, target);
-										} else {
-											logger.warning("Action named " + action + " for endpoint named " + key + " was not executed because the target was null.");
+									for (Method m : methods) {
+										if (m.getName().equalsIgnoreCase(action)) {
+											if (m.getParameterCount() > 0) {
+												// Invoke with the given target
+												if (target != null && !target.isEmpty()) {
+													m.invoke(plugin, target);
+												} else {
+													logger.warning("Action named " + action + " for endpoint named " + key + " was not executed because the target was null.");
+												}
+											} else {
+												// Invoke without arguments
+												m.invoke(plugin);
+											}
+											// Did what we needed to do, exit this loop
+											break;
 										}
-									} else {
-										m.invoke(plugin);
 									}
 								} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-										| NoSuchMethodException | SecurityException e) {
+										| SecurityException e) {
 									e.printStackTrace();
 									logger.severe("No action named " + action + " is available in CurlCraft currently.");
 								}
