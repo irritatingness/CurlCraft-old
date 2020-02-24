@@ -3,9 +3,11 @@ package com.irritatingness;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -58,9 +60,9 @@ public class CurlCraft extends JavaPlugin {
 							if (body != null && !body.isEmpty()) {
 								JSONObject json;
 								try {
+									// TODO: Fix NPE here
 									json = (JSONObject) new JSONParser().parse(body);
 									target = json.get("target").toString();
-									logger.info("Got target: " + target);
 								} catch (ParseException e) {
 									// The JSON we got in the was wrong
 									logger.severe("JSON body for request with endpoint of " + key + " was malformed, no target found.");
@@ -109,17 +111,53 @@ public class CurlCraft extends JavaPlugin {
 		
 	}
 	
+	/*
+	 * DEFINE NEW ACTIONS BELOW
+	 * TODO: Eventually break these out into another class and have a reference class to load methods from.
+	 */
 	
-	// DEFINE ACTIONS BELOW, TODO: MOVE TO THEIR OWN FILE(S)?
+	public void electrocute(String target) {
+		Player p = this.getServer().getPlayerExact(target);
+		if (p != null) {
+			p.getWorld().strikeLightning(p.getLocation());
+		} else {
+			logger.warning("electrocute with target " + target + " was not exocuted because the target was not found!");
+		}
+	}
+	
 	public void electrocuteAll() {
 		for (Player p : this.getServer().getOnlinePlayers()) {
 			p.getWorld().strikeLightning(p.getLocation());
 		}
 	}
 	
+	public void fireworks(String target) {
+		Player p = this.getServer().getPlayerExact(target);
+		if (p != null) {
+			p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
+		} else {
+			logger.warning("fireworks with target " + target + " was not exocuted because the target was not found!");
+		}
+	}
+	
 	public void fireworksAll() {
 		for (Player p : this.getServer().getOnlinePlayers()) {
 			p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
+		}
+	}
+	
+	public void spawnCreeper(String target) {
+		Player p = this.getServer().getPlayerExact(target);
+		if (p != null) {
+			Random r = new Random();
+			Location pLoc = p.getLocation();
+			// Add x and z of 0-10 to randomize the spawn location
+			pLoc.add(r.nextDouble() * 10, 0, r.nextDouble() * 10);
+			// Make sure the location is safe, no wasted creepers...
+			pLoc.setY(pLoc.getWorld().getHighestBlockYAt(pLoc));
+			p.getWorld().spawnEntity(pLoc, EntityType.CREEPER);
+		} else {
+			logger.warning("spawnCreeper with target " + target + " was not exocuted because the target was not found!");
 		}
 	}
 	
